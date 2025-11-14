@@ -17,6 +17,9 @@ app.use(express.json({ limit: "2mb" }));
 
 // ---------- Security: shared secret + rate limit ----------
 app.use((req, res, next) => {
+  // allow health checks & CORS preflight without a key
+  if (req.method === "OPTIONS" || req.path === "/health") return next();
+
   const key = req.get("x-api-key");
   if (process.env.INTERNAL_API_KEY && key !== process.env.INTERNAL_API_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
